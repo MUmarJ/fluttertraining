@@ -68,7 +68,7 @@ class TodoListState extends State<TodoList> {
               new FlatButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    addToTodos(textController.text);
+                    addTodo(textController.text);
                   },
                   child: const Text('Submit')),
             ],
@@ -76,9 +76,15 @@ class TodoListState extends State<TodoList> {
         });
   }
 
-  addToTodos(String text) {
+  addTodo(String text) {
     setState(() {
       todos[textController.text] = false;
+    });
+  }
+
+  removeTodo(String todo) {
+    setState(() {
+      todos.remove(todo);
     });
   }
 
@@ -86,24 +92,29 @@ class TodoListState extends State<TodoList> {
     return new Scaffold(
       body: ListView(
         children: todos.keys.map((String todo) {
-          return new CheckboxListTile(
-              title: new Text(todo),
-              value: todos[todo],
-              onChanged: (bool isDone) {
-                setState(() {
-                  todos[todo] = isDone;
-                });
+          return new Dismissible(
+              background: Container(color: Colors.red),
+              key: Key(todo),
+              onDismissed: (direction) {
+                print(direction);
+                removeTodo(todo);
               },
-              secondary: IconButton(
-                  icon: Icon(
-                    Icons.restore_from_trash,
-                    color: Colors.red.shade400,
-                  ),
-                  onPressed: () {
+              child: CheckboxListTile(
+                  title: new Text(todo),
+                  value: todos[todo],
+                  onChanged: (bool isDone) {
                     setState(() {
-                      todos.remove(todo);
+                      todos[todo] = isDone;
                     });
-                  }));
+                  },
+                  secondary: IconButton(
+                      icon: Icon(
+                        Icons.restore_from_trash,
+                        color: Colors.red.shade400,
+                      ),
+                      onPressed: () {
+                        removeTodo(todo);
+                      })));
         }).toList(),
       ),
       floatingActionButton: FloatingActionButton(
